@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button, select {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .delete-button, .edit-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .edit-button {
+            background-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+<h1>Buscar Funcionário</h1>
+<input type="text" id="funcionarioId" placeholder="Digite o ID do funcionário">
+<button onclick="buscarFuncionario()">Buscar</button>
+<div id="resultado"></div>
+
+<script>
+    async function buscarFuncionario() {
+        const id = document.getElementById('funcionarioId').value;
+        const url = `http://localhost:8080/funcionario/${id}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Erro: ${response.status}`);
+            }
+
+            const data = await response.json();
+            exibirResultado(data);
+        } catch (error) {
+            document.getElementById('resultado').textContent = `Erro: ${error.message}`;
+        }
+    }
+
+    function exibirResultado(data) {
+        const resultadoDiv = document.getElementById('resultado');
+        resultadoDiv.innerHTML = `
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <td>${data.id}</td>
+                    </tr>
+                    <tr>
+                        <th>Nome</th>
+                        <td>${data.nome}</td>
+                    </tr>
+                    <tr>
+                        <th>Idade</th>
+                        <td>${data.idade}</td>
+                    </tr>
+                    <tr>
+                        <th>Setor</th>
+                        <td>${data.setor}</td>
+                    </tr>
+                    <tr>
+                        <th>Cargo</th>
+                        <td>${data.cargo}</td>
+                    </tr>
+                    <tr>
+                        <th>Documento</th>
+                        <td>${data.doc}</td>
+                    </tr>
+                </table>
+                <button class="delete-button" onclick="deletarFuncionario(${data.id})">Deletar Funcionário</button>
+                <button class="edit-button" onclick="editarFuncionario(${data.id}, '${data.nome}', ${data.idade}, '${data.setor}', '${data.cargo}', '${data.doc}')">Editar Funcionário</button>
+            `;
+    }
+
+    function editarFuncionario(id, nome, idade, setor, cargo, doc) {
+        const resultadoDiv = document.getElementById('resultado');
+        resultadoDiv.innerHTML = `
+                <h2>Editar Funcionário</h2>
+                <div class="form-group">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" value="${nome}">
+                </div>
+                <div class="form-group">
+                    <label for="idade">Idade</label>
+                    <input type="number" id="idade" value="${idade}">
+                </div>
+                <div class="form-group">
+                    <label for="setor">Setor</label>
+                    <input type="text" id="setor" value="${setor}">
+                </div>
+                <div class="form-group">
+                    <label for="cargo">Cargo</label>
+                    <select id="cargo">
+                        <option value="Junior" ${cargo === 'Junior' ? 'selected' : ''}>Junior</option>
+                        <option value="Pleno" ${cargo === 'Pleno' ? 'selected' : ''}>Pleno</option>
+                        <option value="Senior" ${cargo === 'Senior' ? 'selected' : ''}>Senior</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="doc">Documento</label>
+                    <input type="text" id="doc" value="${doc}">
+                </div>
+                <button onclick="atualizarFuncionario(${id})">Salvar</button>
+            `;
+    }
+
+    async function atualizarFuncionario(id) {
+        const nome = document.getElementById('nome').value;
+        const idade = document.getElementById('idade').value;
+        const setor = document.getElementById('setor').value;
+        const cargo = document.getElementById('cargo').value;
+        const doc = document.getElementById('doc').value;
+
+        const url = `http://localhost:8080/funcionario/${id}`;
+
+        const funcionarioRequestDTO = {
+            nome: nome,
+            idade: parseInt(idade),
+            setor: setor,
+            cargo: cargo,
+            doc: doc
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(funcionarioRequestDTO)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro: ${response.status}`);
+            }
+
+            const data = await response.json();
+            document.getElementById('resultado').innerHTML = `Funcionário atualizado com sucesso! ID: ${data.id}`;
+        } catch (error) {
+            document.getElementById('resultado').textContent = `Erro: ${error.message}`;
+        }
+    }
+
+    async function deletarFuncionario(id) {
+        const url = `http://localhost:8080/funcionario/${id}`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                throw new Error(`Erro: ${response.status}`);
+            }
+
+            document.getElementById('resultado').innerHTML = `Funcionário com ID ${id} foi deletado com sucesso.`;
+        } catch (error) {
+            document.getElementById('resultado').textContent = `Erro: ${error.message}`;
+        }
+    }
+</script>
+</body>
+</html>

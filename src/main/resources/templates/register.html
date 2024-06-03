@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Funcionário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+        #resultado {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Registrar Funcionário</h1>
+<div class="form-group">
+    <label for="nome">Nome</label>
+    <input type="text" id="nome" placeholder="Nome">
+</div>
+<div class="form-group">
+    <label for="idade">Idade</label>
+    <input type="number" id="idade" placeholder="Idade">
+</div>
+<div class="form-group">
+    <label for="setor">Documento:</label>
+    <input type="text" id="doc" placeholder="Documento">
+</div>
+<div class="form-group">
+    <label for="setor">Setor</label>
+    <input type="text" id="setor" placeholder="Setor">
+</div>
+<div class="form-group">
+    <label for="cargo">Cargo</label>
+    <select id="cargo">
+        <option value="Junior">Junior</option>
+        <option value="Pleno">Pleno</option>
+        <option value="Senior">Senior</option>
+    </select>
+</div>
+<button class="submit-button" onclick="registrarFuncionario()">Registrar</button>
+<div id="resultado"></div>
+
+<script>
+    async function registrarFuncionario() {
+        const nome = document.getElementById('nome').value;
+        const idade = document.getElementById('idade').value;
+        const setor = document.getElementById('setor').value;
+        const cargo = document.getElementById('cargo').value;
+        const doc = document.getElementById('doc').value;
+
+        const url = 'http://localhost:8080/funcionario';
+
+        const funcionarioRequestDTO = {
+            nome: nome,
+            idade: parseInt(idade),
+            doc: doc,
+            setor: setor,
+            cargo: cargo
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(funcionarioRequestDTO)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro: ${response.status}`);
+            }
+
+            const data = await response.json();
+            document.getElementById('resultado').textContent = `Funcionário ${data.nome} registrado com sucesso! ID: ${data.id}`;
+        } catch (error) {
+            document.getElementById('resultado').textContent = `Erro: ${error.message}`;
+        }
+    }
+</script>
+</body>
+</html>

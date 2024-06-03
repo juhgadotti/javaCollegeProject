@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todos os Funcionários</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Todos os Funcionários</h1>
+<button onclick="buscarTodosFuncionarios()">Atualizar</button>
+<div id="resultado"></div>
+
+<script>
+    async function buscarTodosFuncionarios() {
+        const url = `http://localhost:8080/funcionario`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Erro: ${response.status}`);
+            }
+
+            const data = await response.json();
+            exibirFuncionarios(data);
+        } catch (error) {
+            document.getElementById('resultado').textContent = `Erro: ${error.message}`;
+        }
+    }
+
+    function exibirFuncionarios(funcionarios) {
+        const resultadoDiv = document.getElementById('resultado');
+        if (funcionarios.length === 0) {
+            resultadoDiv.innerHTML = `<p>Nenhum funcionário encontrado.</p>`;
+            return;
+        }
+
+        let html = `
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Idade</th>
+                        <th>Setor</th>
+                        <th>Cargo</th>
+                        <th>Documento</th>
+                    </tr>
+            `;
+
+        funcionarios.forEach(funcionario => {
+            html += `
+                    <tr>
+                        <td>${funcionario.id}</td>
+                        <td>${funcionario.nome}</td>
+                        <td>${funcionario.idade}</td>
+                        <td>${funcionario.setor}</td>
+                        <td>${funcionario.cargo}</td>
+                        <td>${funcionario.doc}</td>
+                    </tr>
+                `;
+        });
+
+        html += `</table>`;
+        resultadoDiv.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', buscarTodosFuncionarios);
+</script>
+</body>
+</html>
